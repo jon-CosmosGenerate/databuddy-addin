@@ -1,0 +1,20 @@
+{
+  "plugins": [
+    "office-addins",
+    "office-addins/recommended"
+  ],
+  "extends": [
+    "plugin:office-addins/recommended"
+  ],
+  "rules": {
+    "no-undef": "off"
+  },
+  "globals": {
+    "Office": "readonly",
+    "Excel": "readonly",
+    "console": "readonly",
+    "localStorage": "readonly",
+    "window": "readonly",
+    "document": "readonly"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "jsx": "react",
+    "lib": ["DOM", "ES6", "ES2015.Promise", "ES2015.Collection", "ES2015.Iterable"],
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "types": [
+      "office-js",
+      "office-runtime",
+      "react",
+      "react-dom",
+      "node"
+    ],
+    "allowJs": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "noEmitOnError": true,
+    "outDir": "lib",
+    "sourceMap": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "lib"
+  ]
+}
