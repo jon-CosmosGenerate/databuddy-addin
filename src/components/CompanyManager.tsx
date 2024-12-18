@@ -1,117 +1,145 @@
-import { useState, useCallback } from 'react';
-import { Tab, TabList, Text, makeStyles, tokens, Card } from '@fluentui/react-components';
-import { CompanySearch } from './CompanySearch';
-import { FunctionService } from '@/services/function/FunctionService';
-import type { FunctionDefinition } from '@/services/function/types';
-import { LineChart, XAxis, YAxis, Tooltip, Line } from 'recharts';
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Input,
+  Popover,
+  PopoverSurface,
+  PopoverTrigger,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  makeStyles,
+  tokens,
+  Text,
+  Spinner,
+} from '@fluentui/react-components';
+import { Search24Regular } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
   container: {
-    display: 'grid',
-    gridTemplateColumns: '300px 1fr',
-    gap: tokens.spacingHorizontalL,
-    height: '100vh',
-    padding: tokens.spacingHorizontalL,
-  },
-  sidebar: {
     display: 'flex',
     flexDirection: 'column',
-    gap: tokens.spacingVerticalM,
+    padding: tokens.spacingHorizontalL,
+    gap: tokens.spacingVerticalL,
+    height: '100vh',
+  },
+  searchContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  searchBar: {
+    width: '600px',
+  },
+  resultsDropdown: {
+    position: 'absolute',
+    top: '100%',
+    width: '600px',
+    backgroundColor: tokens.colorNeutralBackground1,
+    boxShadow: tokens.shadow16,
+    zIndex: 1000,
+    borderRadius: tokens.borderRadiusMedium,
+    overflowY: 'auto',
+    maxHeight: '300px',
   },
   mainContent: {
-    display: 'grid',
-    gridTemplateRows: 'auto auto 1fr',
-    gap: tokens.spacingVerticalL,
+    marginTop: tokens.spacingVerticalL,
   },
-  metricsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: tokens.spacingHorizontalM,
+  relativeContainer: {
+    position: 'relative',
   },
-  metricCard: {
-    padding: tokens.spacingVerticalM,
-    textAlign: 'center',
+  relativePosition: {
+    position: 'relative',
   },
-  chartContainer: {
-    padding: tokens.spacingVerticalM,
-    backgroundColor: tokens.colorNeutralBackground2,
-    borderRadius: tokens.borderRadiusMedium,
+  searchWrapper: {
+    position: 'relative',
   },
-  errorMessage: {
-    color: tokens.colorPaletteRedForeground1,
-    marginBottom: tokens.spacingVerticalS,
-  }
 });
+
+interface Company {
+  name: string;
+  ticker: string;
+  cik: string;
+}
 
 export const CompanyManager: React.FC = () => {
   const styles = useStyles();
-  const [functions, setFunctions] = useState<FunctionDefinition[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedTab, setSelectedTab] = useState('overview');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [results, setResults] = useState<Company[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
-  const loadFunctions = useCallback(async () => {
+  const fetchResults = useCallback(async (term: string) => {
+    if (!term.trim()) {
+      setResults([]);
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      const loadedFunctions = await FunctionService.getUserFunctions();
-      if (Array.isArray(loadedFunctions)) {
-        setFunctions(loadedFunctions);
-      } else {
-        console.error('Received non-array response from getUserFunctions');
-        setFunctions([]);
-      }
-    } catch (error) {
-      setError('Failed to load functions. Please try again.');
-      console.error("Error loading functions:", error);
+      const response = await fetch(`http://127.0.0.1:8000/search?query=${term}`);
+      const data = await response.json();
+      setResults(data.results || []);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
-  return (
-    <div className={styles.container}>
-      <div className={styles.sidebar}>
-        <CompanySearch />
-        <TabList 
-          vertical 
-          selectedValue={selectedTab}
-          onTabSelect={(_, data) => setSelectedTab(data.value as string)}
-        >
-          <Tab value="overview">Overview</Tab>
-          <Tab value="financials">Financials</Tab>
-          <Tab value="peers">Peer Analysis</Tab>
-          <Tab value="news">Recent News</Tab>
-        </TabList>
-      </div>
-      
-      <div className={styles.mainContent}>
-        <Text as="h1" size={800}>Company Research</Text>
-        
-        <div className={styles.metricsGrid}>
-          <Card className={styles.metricCard}>
-            <Text size={400}>Revenue</Text>
-            <Text size={800}>$1.2B</Text>
-            <Text size={200}>+12% YoY</Text>
-          </Card>
-          <Card className={styles.metricCard}>
-            <Text size={400}>Market Cap</Text>
-            <Text size={800}>$5.6B</Text>
-            <Text size={200}>+8% MTD</Text>
-          </Card>
-          <Card className={styles.metricCard}>
-            <Text size={400}>EBITDA Margin</Text>
-            <Text size={800}>23.5%</Text>
-            <Text size={200}>+2.1pp YoY</Text>
-          </Card>
-        </div>
-        
-        <div className={styles.chartContainer}>
-          <LineChart width={800} height={300}>
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Line type="monotone" dataKey="value" stroke="#8884d8" />
-          </LineChart>
-        </div>
+  useEffect(() => {
+    const timeoutId = setTimeout(() => fetchResults(searchTerm), 200);
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, fetchResults]);
 
-        {error && <Text className={styles.errorMessage}>{error}</Text>}
+  const handleSelectCompany = (company: Company) => {
+    setSelectedCompany(company);
+    setSearchTerm(company.name); // Auto-fill search bar with selection
+    setResults([]); // Clear dropdown
+  };
+
+  return (
+        <div className={styles.searchWrapper}>
+      {/* Search Function - Top Center */}
+      <div className={styles.searchContainer}>
+        <div style={{ position: 'relative' }}>
+          <Input
+            className={styles.searchBar}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search for companies by name or ticker..."
+            contentBefore={<Search24Regular />}
+          />
+          {isLoading && <Spinner size="tiny" style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)' }} />}
+
+          {/* Results Dropdown */}
+          {results.length > 0 && (
+            <div className={styles.resultsDropdown}>
+              <Table>
+                <TableBody>
+                  {results.map((company, index) => (
+                    <TableRow
+                      key={index}
+                      onClick={() => handleSelectCompany(company)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <TableCell>{company.name}</TableCell>
+                      <TableCell>{company.ticker}</TableCell>
+                      <TableCell>{company.cik}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className={styles.mainContent}>
+        {selectedCompany ? (
+          <Text size={600}>Selected Company: {selectedCompany.name} ({selectedCompany.ticker})</Text>
+        ) : null}
       </div>
     </div>
   );

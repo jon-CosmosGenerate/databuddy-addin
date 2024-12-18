@@ -1,7 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
-import { 
-  Input, 
-  Button,
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Input,
   Table,
   TableBody,
   TableCell,
@@ -9,152 +8,58 @@ import {
   TableHeaderCell,
   TableRow,
   Spinner,
-  Link,
   makeStyles,
   tokens,
-  Text 
+  Text,
 } from '@fluentui/react-components';
 import { Search24Regular } from '@fluentui/react-icons';
-import { AppError, useError } from '@/errors';
-import { DatabaseService } from '@/services/database/DatabaseService';
-import Fuse from 'fuse.js';
-import React from 'react';
 
 const useStyles = makeStyles({
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: tokens.spacingVerticalM,
-  },
-  searchContainer: {
-    display: 'flex',
-    gap: tokens.spacingHorizontalM,
-    alignItems: 'center',
-    position: 'relative',
-  },
-  searchInput: {
-    width: '100%',
-  },
-  results: {
-    marginTop: tokens.spacingVerticalM,
-  },
-  score: {
-    fontSize: tokens.fontSizeBase200,
-    color: tokens.colorNeutralForeground3,
-  },
-  noResults: {
-    textAlign: 'center',
-    padding: tokens.spacingVerticalL,
-    color: tokens.colorNeutralForeground3,
-  },
+  container: { display: 'flex', flexDirection: 'column', gap: tokens.spacingVerticalM },
+  searchContainer: { position: 'relative', display: 'flex', gap: tokens.spacingHorizontalM },
+  searchInput: { width: '100%' },
+  results: { marginTop: tokens.spacingVerticalM },
   loader: {
     position: 'absolute',
     right: '40px',
     top: '50%',
     transform: 'translateY(-50%)',
-  }
+  },
 });
 
 interface Company {
-  id: string;
   name: string;
   ticker: string;
-  sector: string;
-  description?: string;
+  cik: string;
 }
 
 export const CompanySearch: React.FC = () => {
   const styles = useStyles();
-  const { setError } = useError();
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState<Company[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [companies, setCompanies] = useState<Company[]>([]);
 
-  // Initialize Fuse.js for smart search
-  const fuseOptions = {
-    keys: ['name', 'ticker', 'sector'],
-    threshold: 0.3,
-    distance: 100,
-    minMatchCharLength: 1
-  };
-  const fuse = new Fuse(companies, fuseOptions);
-
-  // Load initial company data
-  useEffect(() => {
-    const loadCompanies = async () => {
-      try {
-        const db = DatabaseService.getInstance();
-        const result = await db.executeQuery<Company>(`
-          SELECT id, name, ticker, sector, description 
-          FROM companies 
-          LIMIT 1000
-        `);
-        setCompanies(result.rows);
-      } catch (error) {
-        setError(error as AppError);
-      }
-    };
-
-    loadCompanies();
-  }, [setError]);
-
-  // Debounced search function
-  const performSearch = useCallback(async (term: string) => {
+  const fetchResults = useCallback(async (term: string) => {
     if (!term.trim()) {
       setResults([]);
       return;
     }
-
     setIsLoading(true);
     try {
-      // Local fuzzy search for quick results
-      const fuzzyResults = fuse.search(term).map(result => result.item);
-
-      // If we have a database connection, also search there
-      const db = DatabaseService.getInstance();
-      const query = `
-        SELECT id, name, ticker, sector, description
-        FROM companies
-        WHERE 
-          name ILIKE $1 OR 
-          ticker ILIKE $1 OR 
-          sector ILIKE $1
-        LIMIT 10
-      `;
-      const dbResults = await db.executeQuery<Company>(query, [`%${term}%`]);
-
-      // Combine and deduplicate results
-      const combinedResults = [...fuzzyResults, ...dbResults.rows];
-      const uniqueResults = Array.from(new Map(combinedResults.map(item => 
-        [item.id, item]
-      )).values());
-
-      setResults(uniqueResults.slice(0, 10));
-    } catch (error) {
-      setError(error as AppError);
+      const response = await fetch(`http://127.0.0.1:8000/search?query=${term}`);
+      const data = await response.json();
+      setResults(data.results || []);
+    } catch (err) {
+      console.error('Error fetching data:', err);
     } finally {
       setIsLoading(false);
     }
-  }, [fuse, setError]);
+  }, []);
 
-  // Debounce the search
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      performSearch(searchTerm);
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [searchTerm, performSearch]);
-
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-  };
-
-  const handleCompanySelect = async (company: Company) => {
-    // Handle company selection - we'll implement this later
-    console.log('Selected company:', company);
-  };
+    const timeoutId = setTimeout(() => fetchResults(searchTerm), 300);
+    return () => clearTimeout(timeoutId); // Debounce
+  }, [searchTerm, fetchResults]);
 
   return (
     <div className={styles.container}>
@@ -163,8 +68,8 @@ export const CompanySearch: React.FC = () => {
         <Input
           className={styles.searchInput}
           value={searchTerm}
-          onChange={handleSearchChange}
-          placeholder="Search by company name, ticker, or sector..."
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search companies by name or ticker..."
           disabled={isLoading}
         />
         {isLoading && <Spinner size="tiny" className={styles.loader} />}
@@ -174,31 +79,23 @@ export const CompanySearch: React.FC = () => {
         <Table className={styles.results}>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>Ticker</TableHeaderCell>
               <TableHeaderCell>Company</TableHeaderCell>
-              <TableHeaderCell>Sector</TableHeaderCell>
+              <TableHeaderCell>Ticker</TableHeaderCell>
+              <TableHeaderCell>CIK</TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {results.map((company) => (
-              <TableRow 
-                key={company.id}
-                onClick={() => handleCompanySelect(company)}
-                style={{ cursor: 'pointer' }}
-              >
-                <TableCell>
-                  <Text weight="semibold">{company.ticker}</Text>
-                </TableCell>
+            {results.map((company, index) => (
+              <TableRow key={index}>
                 <TableCell>{company.name}</TableCell>
-                <TableCell>{company.sector}</TableCell>
+                <TableCell>{company.ticker}</TableCell>
+                <TableCell>{company.cik}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       ) : searchTerm && !isLoading ? (
-        <div className={styles.noResults}>
-          <Text>No companies found matching "{searchTerm}"</Text>
-        </div>
+        <Text>No companies found for "{searchTerm}".</Text>
       ) : null}
     </div>
   );

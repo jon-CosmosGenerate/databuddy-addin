@@ -1,13 +1,14 @@
-import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
-import { AppError } from '@/errors';
-import { configService } from '../config/ConfigService';
+// import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
+// import { AppError } from '@/errors';
+// import { configService } from '../config/ConfigService';
 
 export class DatabaseService {
   private static instance: DatabaseService;
-  private pool: Pool;
+  // private pool: Pool;
   private connected: boolean = false;
 
   private constructor() {
+    /*
     const config = configService.getDatabaseConfig();
     this.pool = new Pool(config);
 
@@ -21,6 +22,7 @@ export class DatabaseService {
         err
       );
     });
+    */
   }
 
   public static getInstance(): DatabaseService {
@@ -31,6 +33,7 @@ export class DatabaseService {
   }
 
   private async ensureConnection(): Promise<void> {
+    /*
     if (!this.connected) {
       try {
         const client = await this.pool.connect();
@@ -46,69 +49,25 @@ export class DatabaseService {
         );
       }
     }
+    */
   }
 
-  async executeQuery<T extends QueryResultRow = any>(
-    query: string,
-    params?: any[]
-  ): Promise<QueryResult<T>> {
-    await this.ensureConnection();
-
-    const client = await this.pool.connect();
-    try {
-      const result = await client.query<T>(query, params);
-      return result;
-    } catch (error) {
-      throw new AppError(
-        'Database query failed',
-        'DB_QUERY_ERROR',
-        'high',
-        'database',
-        error
-      );
-    } finally {
-      client.release();
-    }
+  async executeQuery<T>(query: string, params?: any[]): Promise<any> {
+    throw new Error("DatabaseService is currently disabled. Use the API instead.");
   }
 
-  async transaction<T>(callback: (client: PoolClient) => Promise<T>): Promise<T> {
-    await this.ensureConnection();
-
-    const client = await this.pool.connect();
-    try {
-      await client.query('BEGIN');
-      const result = await callback(client);
-      await client.query('COMMIT');
-      return result;
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw new AppError(
-        'Transaction failed',
-        'DB_TRANSACTION_ERROR',
-        'high',
-        'database',
-        error
-      );
-    } finally {
-      client.release();
-    }
+  async transaction<T>(callback: any): Promise<T> {
+    throw new Error("DatabaseService is currently disabled. Use the API instead.");
   }
 
   async healthCheck(): Promise<boolean> {
-    try {
-      await this.executeQuery('SELECT 1');
-      return true;
-    } catch {
-      return false;
-    }
+    return false; // Indicate the database service is inactive
   }
 
   async cleanup(): Promise<void> {
-    if (this.pool) {
-      await this.pool.end();
-      this.connected = false;
-    }
+    // No-op as pool is not initialized
+    this.connected = false;
   }
 }
 
-export const databaseService = DatabaseService.getInstance();
+// export const databaseService = DatabaseService.getInstance();
