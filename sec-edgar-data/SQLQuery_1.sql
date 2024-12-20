@@ -1,5 +1,5 @@
 -- Table: companies
-CREATE TABLE companies (
+CREATE TABLE IF NOT EXISTS companies (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     ticker VARCHAR(10),
@@ -10,7 +10,7 @@ CREATE TABLE companies (
 );
 
 -- Table: filings
-CREATE TABLE filings (
+CREATE TABLE IF NOT EXISTS filings (
     id SERIAL PRIMARY KEY,
     company_id INT REFERENCES companies(id) ON DELETE CASCADE,
     filing_date DATE NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE filings (
 );
 
 -- Table: financials
-CREATE TABLE financials (
+CREATE TABLE IF NOT EXISTS financials (
     id SERIAL PRIMARY KEY,
     company_id INT REFERENCES companies(id) ON DELETE CASCADE,
     year INT NOT NULL,

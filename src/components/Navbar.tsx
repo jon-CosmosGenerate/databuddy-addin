@@ -69,7 +69,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigate, selectedKey = 'compa
 
   // Define all navigation items
   const allNavItems: NavItem[] = [
-    { key: 'company-snapshot', icon: <BuildingRegular />, label: 'Company Snapshot' },
+    { key: 'company-snapshot', icon: <BuildingRegular />, label: 'Search' },
     { key: 'markets-data', icon: <ArrowTrendingRegular />, label: 'Markets' },
     { key: 'models', icon: <TableRegular />, label: 'Models' },
     { key: 'comparables-analysis', icon: <ChartMultiple24Regular />, label: 'Comparables' },

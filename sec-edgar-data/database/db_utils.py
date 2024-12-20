@@ -15,6 +15,19 @@ DB_CONFIG = {
     "sslmode": os.getenv("DB_SSLMODE")  # Ensure SSL is required
 }
 
+def test_connection():
+    """Test the database connection."""
+    try:
+        conn = get_connection()
+        if conn:
+            print("Connection successful!")
+            conn.close()
+        else:
+            print("Failed to connect.")
+    except Exception as e:
+        print("Error during connection test:", e)
+
+
 def get_connection():
     """Establishes a connection to the PostgreSQL database."""
     try:
@@ -25,16 +38,27 @@ def get_connection():
         return None
 
 def execute_query(query, values=None):
-    """Executes a query and commits changes."""
+    """Executes a query and returns results for SELECT queries."""
     try:
         conn = get_connection()
         if not conn:
-            return
+            return None
         cursor = conn.cursor()
         cursor.execute(query, values)
+
+        # If the query is a SELECT, fetch the results
+        if query.strip().lower().startswith("select"):
+            results = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            return results
+
+        # Otherwise, commit the changes
         conn.commit()
         cursor.close()
         conn.close()
         print("Query executed successfully.")
     except Exception as e:
         print("Error executing query:", e)
+        return None
+
