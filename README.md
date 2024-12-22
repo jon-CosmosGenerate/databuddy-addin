@@ -1,13 +1,21 @@
-
 # DataBuddy Excel Add-in
 
 ## Overview
 
-DataBuddy is a user-focused web app and Excel task pane add-in designed and intended to improve access to high-quality information by eliminating information asymmetries wrought by market imperfections and structures that seem legacy to the current world we live in. The minimum viable product (the "MVP") is designed around financial data, though the vision encompasses all sectors and verticals of data. Below, we will provide more details about the app's existing capabilities.
+DataBuddy is a user-focused web app and Microsoft 365 task pane add-in designed and intended to improve access to high-quality information by eliminating information asymmetries wrought by market imperfections and structures that are legacy to the current world we live in. The minimum viable product (the "MVP") for DataBuddy is designed around financial, economic, and markets data, though the vision for the platform's future includes all sectors and verticals of data. While we intend to provide traditional analytical and reporting toolkits to decrease the amount of time required to complete a task or enhance analyses, our long-term goals include exploring non-traditional data relationships and analysis and leveraging AI to solve issues in data management and decision-making, community building, and infrastructure cyber, digital, and financial security.
 
-DataBuddy enhances financial data analysis capabilities within Excel by integrating a high-quality data universe with Office 365. We hope to extend our add-in beyond finance, across all sectors and forms of data. Built with TypeScript and modern web technologies, the add-in provides a seamless interface for public company data research and analysis, custom function and keyboard shortcut management, and financial analysis tools. The add-in developers are currently working on improving the add-in with a focus on collaboration and security.
+## Key Features
 
-## Features
+- Massive, diverse **public data universe** composed of **high-quality sources** vetted for potential conflicts of interest and supported by partner data sources
+- **Semantically-driven tagging automation capabilities** for both user, team, and organizational integrations of relevant, idiosyncratic perspective into their respective data universes
+- **Anomoly and data irregularity detection** identified through machine learning that has the capacity to identify real-world issues more efficiently and with higher levels of confidence
+- Robust **querying functionality** of complex tasks, including **by keyboard or voice**, from diverse sources of databases and other reliable public or private sources.
+- **Semantic search** supported by vector database functionality across a large and growing number of databases, information platforms, and clouds
+- Precise and automated non-traditional analysis, such as **sentiment analysis** with user-controlled selection of sources.
+- **Custom function generation, management, and sharing** capabilities that require no prior knowledge of code and, often, just a concept communicated to an AI agent specifically responsible for interpreting and synthesizing user needs in the context of Excel and the broader Microsoft 365 ecosystem
+- **Custom keyboard shortcut manager** with easy access for users to create shortcuts that don't align with existing shortcuts. This feature requires no coding experience and relies on small language model-trained AI agents
+- Built with a combination of web technologies that integrate user-centered design with powerful backend functionality, effectively placing the user in control of an objective analytical data environment capable of saving many user hours per week while improving quality of work outcomes and enriching analyses.
+- Security is at the forefront of our platform and trust is at the forefront of our company. Our long-term vision is primarily that of a company focused on ensuring the safety of our **individuals** who make up our digital communities.
 
 ### Public Company Research, Analysis, and Management
 
@@ -15,6 +23,7 @@ DataBuddy enhances financial data analysis capabilities within Excel by integrat
 - Financial data visualization
 - Excel data export capabilities
 - Template-based reporting
+- -Machine learning model-based equity and financial reports that are trained on the basis of past variations in projections and valuation ranges
 
 ### Custom Functions
 
@@ -34,45 +43,48 @@ DataBuddy enhances financial data analysis capabilities within Excel by integrat
 
 ````markdown
 ```plaintext
+
 ```
 
 ## Technology Stack
-```
+````
+
 src/
-├── commands/              # Office add-in commands
-│   ├── commands.html
-│   └── commands.ts
-├── features/             
-│   ├── company/          # Company management
-│   │   └── companyManager.ts
-│   ├── functions/        # Function management
-│   │   └── functionManager.ts
-│   └── navigation/       # Navigation components
-│       ├── navbar.ts
-│       └── templateDesigner.ts
-├── services/             # Business logic and API services
-│   ├── companySearchService.ts
-│   └── functionService.ts
-├── styles/              
-│   ├── base/            # Base styles
-│   │   ├── _reset.scss
-│   │   ├── _theme.scss
-│   │   └── _variables.scss
-│   ├── features/        # Feature-specific styles
-│   │   ├── _company-manager.scss
-│   │   ├── _function-manager.scss
-│   │   ├── _navbar.scss
-│   │   └── _template-designer.scss
-│   ├── layout/          # Layout styles
-│   │   └── _taskpane.scss
-│   └── main.scss        # Main style entry
-├── taskpane/            # Main entry point
-│   ├── taskpane.html
-│   └── taskpane.ts
-└── types/               # TypeScript definitions
-    ├── global.d.ts
-    └── index.d.ts
-```plaintext
+├── commands/ # Office add-in commands
+│ ├── commands.html
+│ └── commands.ts
+├── features/
+│ ├── company/ # Company management
+│ │ └── companyManager.ts
+│ ├── functions/ # Function management
+│ │ └── functionManager.ts
+│ └── navigation/ # Navigation components
+│ ├── navbar.ts
+│ └── templateDesigner.ts
+├── services/ # Business logic and API services
+│ ├── companySearchService.ts
+│ └── functionService.ts
+├── styles/
+│ ├── base/ # Base styles
+│ │ ├── \_reset.scss
+│ │ ├── \_theme.scss
+│ │ └── \_variables.scss
+│ ├── features/ # Feature-specific styles
+│ │ ├── \_company-manager.scss
+│ │ ├── \_function-manager.scss
+│ │ ├── \_navbar.scss
+│ │ └── \_template-designer.scss
+│ ├── layout/ # Layout styles
+│ │ └── \_taskpane.scss
+│ └── main.scss # Main style entry
+├── taskpane/ # Main entry point
+│ ├── taskpane.html
+│ └── taskpane.ts
+└── types/ # TypeScript definitions
+├── global.d.ts
+└── index.d.ts
+
+````plaintext
 
 ## Technology Stack
 
@@ -104,7 +116,7 @@ cd databuddy
 
 ```bash
 npm install
-```
+````
 
 1. Start the development server:
 
@@ -167,12 +179,14 @@ A TypeScript-based Excel task pane add-in focused on company data management, cu
 ## Core Features
 
 1. **Company Management**
+
    - Company search functionality
    - Data visualization
    - Excel export capabilities
    - Custom template design
 
 2. **Function Management**
+
    - Custom Excel functions creation
    - Function sharing capabilities
    - Template management
@@ -197,19 +211,18 @@ A TypeScript-based Excel task pane add-in focused on company data management, cu
 ```plaintext
 src/
 ├── commands/              # Office add-in commands
-├── features/             
+├── features/
 │   ├── company/          # Company management feature
 │   ├── functions/        # Function management feature
 │   └── navigation/       # Navigation components
 ├── services/             # Business logic and API calls
-├── styles/               
+├── styles/
 │   ├── base/            # Base styles and variables
 │   ├── features/        # Feature-specific styles
 │   └── layout/          # Layout components
 ├── taskpane/            # Main entry point
 └── types/               # TypeScript definitions
 ```
-
 
 ## Current Progress
 
@@ -306,3 +319,7 @@ src/
 - Consider Excel version compatibility
 - Implement proper error boundaries
 - Use TypeScript strict mode consistently
+
+```
+
+```
