@@ -41,14 +41,7 @@ DataBuddy is a user-focused web app and Microsoft 365 task pane add-in designed 
 
 ## Project Structure
 
-````markdown
 ```plaintext
-
-```
-
-## Technology Stack
-````
-
 src/
 ├── commands/ # Office add-in commands
 │ ├── commands.html
@@ -83,8 +76,7 @@ src/
 └── types/ # TypeScript definitions
 ├── global.d.ts
 └── index.d.ts
-
-````plaintext
+``` plaintext
 
 ## Technology Stack
 
